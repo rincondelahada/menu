@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>hada burgers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f1724; /* deep */
+      --card:#0b1220;
+      --glass: rgba(255,255,255,0.04);
+      --accent:#ff8a00; /* orange */
+      --muted:#9aa4b2;
+      --success:#22c55e;
+      --danger:#ef4444;
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background: linear-gradient(180deg,#071022 0%, #071a2a 100%);
+      color:#e6eef6;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:24px;
+    }
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    header h1{font-size:20px;margin:0}
+    header .brand{display:flex;gap:12px;align-items:center}
+    header .logo{
+      width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#ffc36b);
+      display:flex;align-items:center;justify-content:center;color:#071022;font-weight:700;font-size:18px
+    }
+
+    nav{margin-bottom:18px}
+    nav ul{display:flex;gap:12px;padding:0;margin:0;list-style:none}
+    nav a{color:var(--muted);text-decoration:none;padding:8px 12px;border-radius:8px}
+    nav a:hover{background:var(--glass);color:#fff}
+
+    .layout{display:grid;grid-template-columns:260px 1fr 340px;gap:18px;align-items:start}
+
+    /* ASIDES */
+    aside{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:14px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    aside h3{margin:0 0 12px 0}
+
+    /* MAIN PRODUCTS */
+    main{background:transparent;padding:6px;border-radius:12px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;transition:transform .18s ease, box-shadow .18s ease;min-height:300px
+    }
+    .card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,23,0.6)}
+    .thumb{width:100%;height:160px;border-radius:10px;object-fit:cover;background:linear-gradient(90deg,#0b1220,#07122a);display:block}
+
+    .meta{display:flex;flex-direction:column;gap:6px}
+    .meta h4{margin:0;font-size:15px}
+    .meta p.desc{margin:0;font-size:13px;color:var(--muted);min-height:36px}
+    .price-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .price{font-weight:700}
+    .controls{display:flex;gap:8px;align-items:center}
+    input[type=number]{width:70px;padding:6px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    button.btn{padding:8px 12px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent),#ffc36b);color:#071022;font-weight:600;cursor:pointer}
+    button.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+
+    /* CART */
+    #cart{display:flex;flex-direction:column;gap:12px}
+    .cart-items{display:flex;flex-direction:column;gap:10px;max-height:420px;overflow:auto;padding-right:6px}
+    .cart-item{display:flex;gap:10px;align-items:center;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02)}
+    .cart-item img{width:56px;height:56px;border-radius:8px;object-fit:cover}
+    .cart-item .ci-meta{flex:1}
+    .cart-item .ci-meta h5{margin:0;font-size:14px}
+    .cart-item .ci-meta p{margin:4px 0 0 0;color:var(--muted);font-size:13px}
+
+    .total-row{display:flex;justify-content:space-between;align-items:center;font-weight:700;padding-top:6px}
+    .actions{display:flex;gap:8px}
+
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+
+    /* RESPONSIVE */
+    @media (max-width:980px){
+      .layout{grid-template-columns:1fr;}
+      aside#carrito{order:3}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">HP</div>
+      <div>
+        <h1>Huachu Pets</h1>
+        <div style="font-size:12px;color:var(--muted)">Catálogo — demo sin servidor</div>
+      </div>
+    </div>
+    <div>
+      <nav>
+        <ul>
+          <li><a href="#">Inicio</a></li>
+          <li><a href="#productos">Productos</a></li>
+          <li><a href="#carrito">Carrito</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- ASIDE FILTROS (izq) -->
+    <aside id="filtros">
+      <h3>Filtros</h3>
+      <p style="color:var(--muted)">Filtra por categoría (demostración)</p>
+      <div id="filter-list"></div>
+    </aside>
+
+    <!-- MAIN: LISTA DE PRODUCTOS -->
+    <main id="productos">
+      <div class="grid" id="grid"></div>
+    </main>
+
+    <!-- ASIDE: CARRITO -->
+    <aside id="carrito">
+      <h3>Carrito de compras</h3>
+      <div id="cart">
+        <div class="cart-items" id="cart-items"></div>
+        <div class="total-row"><div>Total</div><div id="cart-total">$0</div></div>
+        <div class="actions">
+          <button id="clear-cart" class="btn ghost">Vaciar carrito</button>
+          <a id="whatsapp-link" class="btn" target="_blank">Enviar por WhatsApp</a>
+        </div>
+      </div>
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.02);margin-top:12px">
+      <div style="color:var(--muted);font-size:13px;margin-top:8px">Consejo: reemplaza el número de WhatsApp en el código con tu número (sin +, con código de país), por ejemplo: 521XXXXXXXXXX</div>
+    </aside>
+
+  </div>
+
+  <footer>
+    © Huachu Pets — Demo
+  </footer>
+
+  <script>
+    /* ==========================
+       Datos de productos (tu JSON)
+       ========================== */
+    const productsData = [
+  {
+    "id": "auto-1",
+    "sku": "HU-2b9e14",
+    "title": "Pack Halloween 1 (gris, monstruo)",
+    "description": "Conjunto gris con personaje espeluznante; ideal para temporada de Halloween; sudaderas para mascotas en varios tamaños.",
+    "price": 0,
+    "currency": "MXN",
+    "filename": "2b9e146d-9d6d-4fe0-a9ed-3a886afb6be4.jpg",
+    "image": "imgs/2b9e146d-9d6d-4fe0-a9ed-3a886afb6be4.jpg",
+    "category": "Temporada",
+    "stock": 0
+  },
+  {
+    "id": "auto-2",
+    "sku": "HU-3a631e",
+    "title": "Hoodies Naranja (calabaza)",
+    "description": "Hoodies naranjas con cara de calabaza; diseño festivo Día de Muertos / Halloween.",
+    "price": 0,
+    "currency": "MXN",
+    "filename": "3a631ed8-7072-47ca-96db-7246a5616e5a.jpg",
+    "image": "imgs/3a631ed8-7072-47ca-96db-7246a5616e5a.jpg",
+    "category": "Temporada",
+    "stock": 0
+  },
+  {
+    "id": "auto-3",
+    "sku": "HU-5161a9",
+    "title": "Bandanas Spiderweb (naranja/negro)",
+    "description": "Bandanas temáticas con diseño de telaraña; incluye varios colores y modelos para fotografía promocional.",
+    "price": 0,
+    "currency": "MXN",
+    "filename": "5161a94e-87b3-4f69-8690-1c0cefa67806.jpg",
+    "image": "imgs/5161a94e-87b3-4f69-8690-1c0cefa67806.jpg",
+    "category": "Accesorios",
+    "stock": 0
+  },
+  {
+    "id": "auto-4",
+    "sku": "HU-702a0e-1",
+    "title": "Hoodie Naranja (variante 1)",
+    "description": "Hoodie naranja con cara de calabaza — variante en distintos tamaños.",
+    "price": 0,
+    "currency": "MXN",
+    "filename": "702a0eb1-8509-4d0c-9bef-55f9f6219422 (1).jpg",
+    "image": "imgs/702a0eb1-8509-4d0c-9bef-55f9f6219422 (1).jpg",
+    "category": "Temporada",
+    "stock": 0
+  },
+  {
+    "id": "auto-5",
+    "sku": "HU-702a0e-2",
+    "title": "Hoodie Naranja (variante 2)",
+    "description": "Segunda variante del hoodie naranja; perfecta para catálogos y tallas pequeñas.",
+    "price": 0,
+    "currency": "MXN",
+    "filename": "702a0eb1-8509-4d0c-9bef-55f9f6219422 (2).jpg",
+    "image": "imgs/702a0eb1-8509-4d0c-9bef-55f9f6219422 (2).jpg",
+    "category": "Temporada",
+    "stock": 0
+  },
+  {
+    "id": "auto-6",
+    "sku": "HU-702a0e",
+    "title": "Hoodie Naranja (variante base)",
+    "description": "Hoodie naranja estándar con diseño de calabaza; modelo base de la colección.",
+    "price": 0,
+    "currency": "MXN",
+    "filename": "702a0eb1-8509-4d0c-9bef-55f9f6219422.jpg",
+    "image": "imgs/702a0eb1-8509-4d0c-9bef-55f9f6219422.jpg",
+    "category": "Temporada",
+    "stock": 0
+  },
+  {
+    "id": "auto-7",
+    "sku": "HU-73d440-1",
+    "title": "Pack Diversos 1",
+    "description": "Conjunto promocional con estampados divertidos; ideal para catálogo de temporada.",
+    "price": 0,
+    "currency": "MXN",
+    "filename": "73d44075-182f-4aa5-99de-f6163004f50b (1).jpg",
+    "image": "imgs/73d44075-182f-4aa5-99de-f6163004f50b (1).jpg",
+    "category": "Promocional",
+    "stock": 0
+  },
+  {
+    "id": "auto-8",
+    "sku": "HU-73d440",
+    "title": "Pack Diversos 2",
+    "description": "Otra variante del conjunto promocional; colores y estampados distintos.",
+    "price": 0,
+    "currency": "MXN",
+    "filename": "73d44075-182f-4aa5-99de-f6163004f50b.jpg",
+    "image": "imgs/73d44075-182f-4aa5-99de-f6163004f50b.jpg",
+    "category": "Promocional",
+    "stock": 0
+  },
+  {
+    "id": "auto-9",
+    "sku": "HU-a93dc2",
+    "title": "Producto edición 9",
+    "description": "Artículo promocional; imagen con fondo púrpura y naranja, buen material fotográfico.",
+    "price": 0,
+    "currency": "MXN",
+    "filename": "a93dc2b0-dddd-4c69-880a-69fb8320b86b.jpg",
+    "image": "imgs/a93dc2b0-dddd-4c69-880a-69fb8320b86b.jpg",
+      "category": "Accesorios",
+    "stock": 0
+  },
+  {
+    "id": "auto-10",
+    "sku": "HU-b0600f",
+    "title": "Producto edición 10",
+    "description": "Prenda con diseño colorido y detalles en negro; ideal para catálogo online.",
+    "price": 0,
+    "currency": "MXN",
+    "filename": "b0600fdb-f3c4-41da-b4d3-8c613d93abf5.jpg",
+    "image": "imgs/b0600fdb-f3c4-41da-b4d3-8c613d93abf5.jpg",
+      "category": "Promocional",
+    "stock": 0
+  },
+  {
+    "id": "auto-11",
+    "sku": "HU-fb9222-1",
+    "title": "Bandana variante 11",
+    "description": "Bandana temática con telarañas; imagen en tonos morado y naranja.",
+    "price": 0,
+    "currency": "MXN",
+    "filename": "fb922235-f990-4a94-8f85-71ab55f72e94 (1).jpg",
+    "image": "imgs/fb922235-f990-4a94-8f85-71ab55f72e94 (1).jpg",
+     "category": "Accesorios",
+    "stock": 0
+  },
+  {
+    "id": "auto-12",
+    "sku": "HU-fb9222",
+    "title": "Bandana variante 12",
+    "description": "Bandana temática similar a la anterior; perfecta para promociones de temporada.",
+    "price": 0,
+    "currency": "MXN",
+    "filename": "fb922235-f990-4a94-8f85-71ab55f72e94.jpg",
+    "image": "imgs/fb922235-f990-4a94-8f85-71ab55f72e94.jpg",
+       "category": "Accesorios",
+    "stock": 0
+  }
+];
+
+    /* ===============
+       Estado del carrito
+       =============== */
+    const CART_KEY = 'huachu_cart_v1';
+    let cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+
+    /* Opcional: número de WhatsApp (reemplaza con tu número sin + ni guiones):
+       ejemplo para México: 5215512345678  (52 = país, 1 = celular)
+    */
+    const WHATSAPP_NUMBER = '521XXXXXXXXXXXX'; // <-- reemplaza aquí
+
+    /* Utilidades */
+    function formatMoney(n){ return '$' + Number(n || 0).toFixed(2); }
+    function toAbsoluteUrl(path){ try{ return new URL(path, location.href).toString(); }catch(e){ return path; } }
+
+    /* RENDER: productos */
+    const grid = document.getElementById('grid');
+    function renderProducts(list){
+      grid.innerHTML = '';
+      list.forEach(p => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.id = `card-${p.id}`;
+        card.innerHTML = `
+          <img id="img-${p.id}" class="thumb" src="${toAbsoluteUrl(p.image)}" alt="${escapeHtml(p.title)}">
+          <div class="meta">
+            <h4 id="title-${p.id}">${escapeHtml(p.title)}</h4>
+            <p id="desc-${p.id}" class="desc">${escapeHtml(p.description)}</p>
+            <div class="price-row">
+              <div class="price" id="price-${p.id}">${p.price ? formatMoney(p.price) : 'Precio a consultar'}</div>
+              <div class="controls">
+                <input id="qty-${p.id}" type="number" value="1" min="1" aria-label="cantidad">
+                <button id="add-${p.id}" class="btn">Agregar</button>
+              </div>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+
+        // evento añadir
+        card.querySelector(`#add-${p.id}`).addEventListener('click', ()=>{
+          const q = parseInt(card.querySelector(`#qty-${p.id}`).value) || 1;
+          addToCart(p.id, q);
+        });
+      });
+    }
+
+    /* RENDER: filtros simples por category */
+    function renderFilters(list){
+      const holder = document.getElementById('filter-list');
+      const cats = Array.from(new Set(list.map(i=>i.category))).filter(Boolean);
+      holder.innerHTML = '';
+      const allBtn = document.createElement('button');
+      allBtn.className='btn ghost'; allBtn.textContent='Ver todos';
+      allBtn.addEventListener('click', ()=>renderProducts(productsData));
+      holder.appendChild(allBtn);
+      cats.forEach(c=>{
+        const b = document.createElement('button'); b.className='btn ghost'; b.textContent=c;
+        b.addEventListener('click', ()=>renderProducts(productsData.filter(p=>p.category===c)));
+        holder.appendChild(b);
+      });
+    }
+
+    /* ====== CART LOGIC ====== */
+    function saveCart(){ localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
+
+    function addToCart(id, qty=1){
+      const prod = productsData.find(p=>p.id===id);
+      if(!prod) return;
+      const existing = cart.find(i=>i.id===id);
+      if(existing){ existing.qty += qty; }
+      else{ cart.push({id:prod.id,title:prod.title,price:prod.price||0,image:prod.image,qty}); }
+      saveCart(); updateCartUI();
+    }
+
+    function removeFromCart(id){ cart = cart.filter(i=>i.id!==id); saveCart(); updateCartUI(); }
+    function updateQty(id, qty){ const it = cart.find(i=>i.id===id); if(it){ it.qty = Math.max(1, qty); saveCart(); updateCartUI(); } }
+    function clearCart(){ cart = []; saveCart(); updateCartUI(); }
+
+    function updateCartUI(){
+      const list = document.getElementById('cart-items');
+      const totalEl = document.getElementById('cart-total');
+      list.innerHTML = '';
+      let total = 0;
+      cart.forEach(item=>{
+        const subtotal = item.price * item.qty;
+        total += subtotal;
+        const node = document.createElement('div');
+        node.className='cart-item';
+        node.id = `cart-item-${item.id}`;
+        node.innerHTML = `
+          <img src="${toAbsoluteUrl(item.image)}" alt="${escapeHtml(item.title)}">
+          <div class="ci-meta">
+            <h5>${escapeHtml(item.title)}</h5>
+            <p>${item.qty} x ${item.price?formatMoney(item.price):'Precio a consultar'}</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+            <input type="number" min="1" value="${item.qty}" style="width:68px;padding:6px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03)"/>
+            <button class="btn ghost small">Eliminar</button>
+          </div>
+        `;
+        list.appendChild(node);
+
+        // eventos
+        const input = node.querySelector('input[type=number]');
+        input.addEventListener('change', ()=> updateQty(item.id, parseInt(input.value) || 1));
+        node.querySelector('button').addEventListener('click', ()=> removeFromCart(item.id));
+      });
+      totalEl.textContent = formatMoney(total);
+
+      // Actualiza Whatsapp
+      const waLink = document.getElementById('whatsapp-link');
+      waLink.href = buildWhatsAppUrl();
+      waLink.textContent = cart.length ? 'Enviar por WhatsApp' : 'Carrito vacío';
+      waLink.classList.toggle('btn', cart.length>0);
+    }
+
+    function buildWhatsAppUrl(){
+      if(!WHATSAPP_NUMBER || WHATSAPP_NUMBER.includes('X')){
+        // número no configurado
+        return '#';
+      }
+      if(cart.length===0) return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hola, quiero recibir información sobre los productos.')}`;
+      let msg = 'Hola! Quiero comprar (detalle):\n';
+      cart.forEach(it=>{
+        const imgAbs = toAbsoluteUrl(it.image);
+        msg += `- ${it.title} x${it.qty} = ${it.price?formatMoney(it.price):'Precio a consultar'}\n${imgAbs}\n`;
+      });
+      const total = cart.reduce((s,i)=>s + (i.price * i.qty),0);
+      msg += `Total: ${formatMoney(total)}\n\nGracias!`;
+      return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+    }
+
+    /* Small escape to avoid injection inside attributes */
+    function escapeHtml(s){ if(!s && s!==0) return ''; return String(s).replace(/[&"'<>]/g, ch=>({
+      '&':'&amp;','"':'&quot;',"'":"&#39;","<":"&lt;",">":"&gt;"
+    })[ch]); }
+
+    /* BOTONES GLOBALES */
+    document.getElementById('clear-cart').addEventListener('click', ()=>{ if(confirm('Vaciar carrito?')) clearCart(); });
+
+    /* INIT */
+    renderProducts(productsData);
+    renderFilters(productsData);
+    updateCartUI();
+
+    // si quieres, puedes exponer funciones para debug en consola
+    window._products = productsData; window._cart = cart; window.addToCart = addToCart;
+  </script>
+</body>
+</html>
