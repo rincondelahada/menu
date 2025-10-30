@@ -1,0 +1,12 @@
+{
+  "products": [ ... ],
+  "phrases_valor": [ ... ],
+  "faq": [
+    {"q": "Como hago pedido?", "a": "Selecciona productos y presiona Enviar Pedido."},
+    {"q": "Aceptan pago en efectivo?", "a": "Sí, pero el cliente se obliga a pagar al recibir el pedido."}
+  ],
+  "commands": [
+    {"lang": "js", "code": "console.log('Hola')", "execute": true},
+    {"lang": "py", "code": "print('Hola')", "execute": false}
+  ]
+}
